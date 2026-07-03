@@ -1,5 +1,6 @@
 import express from "express";
 import multer from "multer";
+import cors from "cors";
 import dotenv from "dotenv";
 import OpenAI from "openai";
 import { toFile } from "openai/uploads";
@@ -7,59 +8,66 @@ import { toFile } from "openai/uploads";
 dotenv.config();
 
 const app = express();
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  res.header("Access-Control-Allow-Headers", "Content-Type");
+const port = process.env.PORT || 3000;
 
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(204);
-  }
-
-  next();
-});
+app.use(cors());
+app.use(express.json());
+app.use(express.static("public"));
 
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 25 * 1024 * 1024 }
 });
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
+app.get("/health", (req, res) => {
+  res.json({
+    ok: true,
+    service: "mia-dictation-clean",
+    hasOpenAIKey: Boolean(process.env.OPENAI_API_KEY),
+    model: process.env.OPENAI_TRANSCRIBE_MODEL || "whisper-1"
+  });
 });
 
-app.use(express.static("public"));
-
-app.get("/health", (req, res) => {
-  res.json({ ok: true });
+app.get("/api/ping", (req, res) => {
+  res.json({
+    ok: true,
+    message: "Frontend connected to backend successfully."
+  });
 });
 
 app.post("/api/check", upload.single("audio"), async (req, res) => {
-  try {
-    console.log("Received /api/check request");
+  console.log("POST /api/check received");
 
+  try {
     if (!process.env.OPENAI_API_KEY) {
       console.error("Missing OPENAI_API_KEY");
       return res.status(500).json({
-        error: "Server chưa cấu hình OPENAI_API_KEY."
+        ok: false,
+        error: "Thieu OPENAI_API_KEY trong Render Environment."
       });
     }
 
     if (!req.file) {
-      console.error("No audio file received");
+      console.error("No audio file");
       return res.status(400).json({
-        error: "Không tìm thấy file audio."
+        ok: false,
+        error: "Khong nhan duoc file audio."
       });
     }
 
-    console.log("Audio file:", req.file.originalname, req.file.mimetype, req.file.size);
+    console.log("Audio:", {
+      name: req.file.originalname,
+      type: req.file.mimetype,
+      size: req.file.size
+    });
 
-    const prompt =
-      req.body.prompt ||
-      "Transcribe this academic English dictation audio accurately.";
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY
+    });
 
+    const model = process.env.OPENAI_TRANSCRIBE_MODEL || "whisper-1";
+    const prompt = req.body.prompt || "Transcribe this dictation audio accurately.";
     const language = req.body.language || undefined;
-    const model = process.env.OPENAI_TRANSCRIBE_MODEL || "gpt-4o-mini-transcribe";
 
     const audioFile = await toFile(
       req.file.buffer,
@@ -75,36 +83,44 @@ app.post("/api/check", upload.single("audio"), async (req, res) => {
       response_format: "json"
     });
 
-    console.log("Transcription successful");
+    console.log("Transcription OK");
 
-    res.json({
+    return res.json({
+      ok: true,
       transcript: transcription.text || ""
     });
   } catch (error) {
-    console.error("Transcription error:", error);
+    console.error("OpenAI/server error:", error);
 
-    res.status(500).json({
-      error: error.message || "Không thể xử lý audio."
+    const message =
+      error?.response?.data?.error?.message ||
+      error?.error?.message ||
+      error?.message ||
+      "Khong xu ly duoc audio.";
+
+    return res.status(500).json({
+      ok: false,
+      error: message
     });
   }
 });
 
 app.use((error, req, res, next) => {
-  console.error("Server middleware error:", error);
+  console.error("Middleware error:", error);
 
   if (error.code === "LIMIT_FILE_SIZE") {
     return res.status(413).json({
-      error: "File audio lớn hơn 25MB. Hãy cắt nhỏ hoặc nén file."
+      ok: false,
+      error: "File audio lon hon 25MB."
     });
   }
 
-  res.status(500).json({
+  return res.status(500).json({
+    ok: false,
     error: error.message || "Server error."
   });
 });
 
-const port = process.env.PORT || 3000;
-
 app.listen(port, () => {
-  console.log(`MIA Dictation AI is running on port ${port}`);
+  console.log(`MIA Dictation Clean is running on port ${port}`);
 });

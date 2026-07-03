@@ -1,41 +1,16 @@
-# BRIS Dictation AI Web
+# MIA Dictation Clean
 
-Web online có backend AI. Học viên chỉ cần:
-1. Chèn audio
-2. Gõ bài dictation
-3. Bấm **Kiểm tra & sửa bài**
+Render settings:
 
-AI sẽ tự nghe audio, tạo transcript, rồi sửa trực tiếp trong bài gõ.
-
-## Chạy thử trên máy
-
-```bash
+Build Command:
 npm install
-cp .env.example .env
+
+Start Command:
 npm start
-```
 
-Mở:
+Environment Variables:
+OPENAI_API_KEY = your OpenAI API key
+OPENAI_TRANSCRIBE_MODEL = whisper-1
 
-```text
-http://localhost:3000
-```
-
-## Biến môi trường cần có
-
-```env
-OPENAI_API_KEY=your_openai_api_key_here
-OPENAI_TRANSCRIBE_MODEL=gpt-4o-mini-transcribe
-PORT=3000
-```
-
-## Deploy online nhanh
-
-Dùng Render/Railway/VPS:
-- Build command: `npm install`
-- Start command: `npm start`
-- Environment variables:
-  - `OPENAI_API_KEY`
-  - `OPENAI_TRANSCRIBE_MODEL=gpt-4o-mini-transcribe`
-
-Không đưa API key vào file HTML. API key chỉ nằm ở server.
+Test:
+https://your-render-url.onrender.com/health
