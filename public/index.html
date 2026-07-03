@@ -3,1087 +3,210 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BRIS Dictation AI</title>
+  <title>MIA Dictation Clean</title>
   <style>
-    :root {
-      --bg: #f6f7fb;
-      --card: #ffffff;
-      --text: #1f2937;
-      --muted: #6b7280;
-      --border: #e5e7eb;
-      --primary: #2563eb;
-      --primary-dark: #1d4ed8;
-      --success: #15803d;
-      --danger: #b91c1c;
-      --warning: #b45309;
-      --soft-green: #dcfce7;
-      --soft-red: #fee2e2;
-      --soft-orange: #ffedd5;
-      --soft-blue: #eff6ff;
-      --soft-yellow: #fffde7;
-      --yellow: #fff176;
-    }
-
     * { box-sizing: border-box; }
-
     body {
       margin: 0;
       font-family: Arial, Helvetica, sans-serif;
-      background: var(--bg);
-      color: var(--text);
+      background: #f5f7fb;
+      color: #111827;
     }
-
-    .page {
-      max-width: 1120px;
+    main {
+      max-width: 980px;
       margin: 0 auto;
-      padding: 28px 18px 40px;
+      padding: 28px 16px 60px;
     }
-
-    .header {
-      text-align: center;
-      margin-bottom: 22px;
-    }
-
-    .header h1 {
-      margin: 0 0 8px;
-      font-size: 32px;
-    }
-
-    .header p {
-      margin: 0;
-      color: var(--muted);
-      font-size: 15px;
-    }
-
+    h1 { margin: 0 0 8px; text-align: center; }
+    .sub { text-align: center; color: #6b7280; margin-bottom: 22px; }
     .card {
-      background: var(--card);
-      border: 1px solid var(--border);
+      background: #fff;
+      border: 1px solid #e5e7eb;
       border-radius: 18px;
       padding: 22px;
-      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
       margin-bottom: 18px;
+      box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
     }
-
-    .upload-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 14px;
-      flex-wrap: wrap;
-      margin-bottom: 16px;
-    }
-
-    .file-label,
-    .primary-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
+    label.file {
+      display: inline-block;
+      background: #2563eb;
+      color: white;
       padding: 12px 18px;
       border-radius: 12px;
-      background: var(--primary);
-      color: #fff;
-      font-weight: 700;
       cursor: pointer;
-      border: none;
-      transition: 0.2s;
-      text-decoration: none;
+      font-weight: 700;
     }
-
-    .file-label:hover,
-    .primary-btn:hover {
-      background: var(--primary-dark);
-    }
-
     input[type="file"] { display: none; }
-
-    .file-name {
-      color: var(--muted);
-      font-size: 14px;
-      min-height: 20px;
-    }
-
-    audio {
+    audio { width: 100%; margin-top: 14px; }
+    textarea {
       width: 100%;
-      margin: 8px 0 14px;
-    }
-
-    .controls {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(120px, 1fr));
-      gap: 10px;
-      margin-top: 10px;
-    }
-
-    button, select, textarea, input {
-      padding: 11px 12px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      background: #fff;
-      color: var(--text);
-      font-size: 14px;
-    }
-
-    button, select { cursor: pointer; }
-
-    button:hover, select:hover {
-      border-color: #cbd5e1;
-      background: #f9fafb;
-    }
-
-    button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-
-    .main-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 330px;
-      gap: 18px;
-      align-items: start;
-    }
-
-    .typing-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-bottom: 12px;
-    }
-
-    h2 {
-      margin: 0 0 10px;
-      font-size: 20px;
-    }
-
-    .stats, .hint {
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.5;
-    }
-
-    .status {
-      margin: 12px 0 0;
-      padding: 12px;
-      border: 1px solid #bfdbfe;
-      border-radius: 12px;
-      background: var(--soft-blue);
-      color: #1e40af;
-      font-size: 14px;
-      line-height: 1.55;
-      min-height: 48px;
-    }
-
-    .save-status {
-      color: var(--success);
-      font-size: 14px;
-      min-height: 20px;
-      margin-bottom: 10px;
-    }
-
-    .toolbar {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 12px;
-      padding: 10px;
-      background: #f9fafb;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-    }
-
-    .highlight-btn {
-      background: var(--soft-yellow);
-      border-color: #facc15;
-      color: #854d0e;
-      font-weight: 700;
-    }
-
-    .editor {
-      width: 100%;
-      min-height: 430px;
-      overflow-y: auto;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 18px;
-      font-size: 18px;
-      line-height: 1.75;
-      color: var(--text);
-      background: #fff;
-      outline: none;
-      white-space: pre-wrap;
-    }
-
-    .editor:focus, textarea:focus, select:focus, input:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
-      outline: none;
-    }
-
-    .editor:empty::before {
-      content: attr(data-placeholder);
-      color: #9ca3af;
-    }
-
-    .hl-yellow {
-      background: var(--yellow);
-      border-radius: 3px;
-      padding: 0 1px;
-    }
-
-    .fix-insert {
-      background: var(--soft-red);
-      color: var(--danger);
-      border-radius: 5px;
-      padding: 2px 4px;
-      margin: 0 1px;
-      font-weight: 700;
-    }
-
-    .fix-extra {
-      background: var(--soft-orange);
-      color: var(--warning);
-      border-radius: 5px;
-      padding: 2px 4px;
-      margin: 0 1px;
-      text-decoration: line-through;
-    }
-
-    .fix-ok {
-      padding: 0 1px;
-    }
-
-    .actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 12px;
-    }
-
-    .big-check {
-      width: 100%;
-      padding: 15px 18px;
-      font-size: 16px;
-      margin-top: 14px;
-    }
-
-    .danger-btn { color: var(--danger); }
-
-    .answer-box {
-      width: 100%;
-      min-height: 170px;
-      resize: vertical;
-      border: 1px solid var(--border);
+      min-height: 230px;
+      border: 1px solid #d1d5db;
       border-radius: 14px;
       padding: 16px;
-      font-size: 16px;
+      font-size: 18px;
       line-height: 1.7;
+      resize: vertical;
+    }
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 13px 18px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 700;
+    }
+    .primary {
+      width: 100%;
+      background: #2563eb;
+      color: #fff;
+      margin-top: 12px;
+    }
+    .secondary {
+      background: #eef2ff;
+      color: #1e40af;
       margin-top: 10px;
     }
-
-    .summary-grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(120px, 1fr));
-      gap: 10px;
-      margin: 14px 0;
-    }
-
-    .summary-item {
-      border: 1px solid var(--border);
+    button:disabled { opacity: 0.65; cursor: not-allowed; }
+    .status {
+      margin-top: 14px;
+      padding: 14px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1e40af;
       border-radius: 12px;
-      padding: 12px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+    .error {
+      background: #fef2f2;
+      border-color: #fecaca;
+      color: #991b1b;
+    }
+    .ok {
+      background: #ecfdf5;
+      border-color: #bbf7d0;
+      color: #166534;
+    }
+    .result {
+      white-space: pre-wrap;
+      line-height: 1.7;
+      font-size: 18px;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 16px;
       background: #fff;
+      min-height: 120px;
     }
-
-    .summary-item strong {
-      display: block;
-      font-size: 22px;
-      margin-bottom: 4px;
-    }
-
-    .summary-item span {
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .side-card {
-      position: sticky;
-      top: 16px;
-    }
-
-    .lookup-word {
-      display: inline-block;
-      padding: 8px 10px;
-      border-radius: 10px;
-      background: var(--soft-blue);
-      color: #1d4ed8;
-      font-weight: 700;
-      margin-bottom: 10px;
-      word-break: break-word;
-    }
-
-    .meaning-box {
-      min-height: 92px;
-      padding: 12px;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      background: #fff;
-      line-height: 1.55;
-      font-size: 15px;
-    }
-
-    .lookup-links {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-top: 12px;
-    }
-
-    .lookup-links a {
-      text-decoration: none;
-      color: var(--primary);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 10px;
-      background: #fff;
-      font-size: 14px;
-      font-weight: 700;
-    }
-
-    .toggle-row {
-      display: flex;
-      align-items: flex-start;
-      gap: 8px;
-      margin-top: 12px;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.45;
-    }
-
-    details {
-      margin-top: 12px;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      background: #fff;
-      padding: 10px 12px;
-    }
-
-    summary {
-      cursor: pointer;
-      font-weight: 700;
-    }
-
-    .settings-grid {
-      display: grid;
-      grid-template-columns: 1fr 180px;
-      gap: 10px;
-      margin-top: 12px;
-    }
-
-    .mini-label {
-      display: block;
-      color: var(--muted);
-      font-size: 13px;
-      margin-bottom: 5px;
-    }
-
-    @media (max-width: 900px) {
-      .main-grid { grid-template-columns: 1fr; }
-      .side-card { position: static; }
-      .summary-grid { grid-template-columns: repeat(2, minmax(120px, 1fr)); }
-      .settings-grid { grid-template-columns: 1fr; }
-    }
-
-    @media (max-width: 700px) {
-      .controls { grid-template-columns: repeat(2, minmax(120px, 1fr)); }
-      .header h1 { font-size: 24px; }
-      .editor {
-        font-size: 16px;
-        min-height: 400px;
-      }
-      .summary-grid { grid-template-columns: 1fr; }
-    }
+    .small { color: #6b7280; font-size: 14px; }
   </style>
 </head>
 <body>
-  <main class="page">
-    <section class="header">
-      <h1>BRIS Dictation AI</h1>
-      <p>Học viên chèn audio, gõ bài, bấm kiểm tra. AI sẽ tự nghe và sửa trực tiếp trên bài gõ.</p>
+  <main>
+    <h1>MIA Dictation Clean</h1>
+    <p class="sub">Bản tối giản: chọn audio, gõ bài, kiểm tra transcript bằng AI.</p>
+
+    <section class="card">
+      <label class="file" for="audioInput">Chọn audio</label>
+      <input id="audioInput" type="file" accept="audio/*" />
+      <p id="fileName" class="small">Chưa chọn audio</p>
+      <audio id="audioPlayer" controls></audio>
+      <button class="secondary" onclick="testBackend()">Test backend</button>
     </section>
 
     <section class="card">
-      <div class="upload-row">
-        <label class="file-label" for="audioInput">Chèn audio</label>
-        <input id="audioInput" type="file" accept="audio/*" />
-        <div id="fileName" class="file-name">Chưa chọn file audio</div>
-      </div>
-
-      <audio id="audioPlayer" controls></audio>
-
-      <div class="controls">
-        <button type="button" onclick="skipAudio(-5)">Lùi 5 giây</button>
-        <button type="button" onclick="skipAudio(5)">Tới 5 giây</button>
-        <button type="button" onclick="replaySentence()">Nghe lại đoạn vừa rồi</button>
-        <select id="speedSelect" onchange="changeSpeed()">
-          <option value="0.5">Tốc độ 0.5x</option>
-          <option value="0.75">Tốc độ 0.75x</option>
-          <option value="1" selected>Tốc độ 1x</option>
-          <option value="1.25">Tốc độ 1.25x</option>
-          <option value="1.5">Tốc độ 1.5x</option>
-        </select>
-      </div>
+      <h2>Bài gõ của bạn</h2>
+      <textarea id="userText" placeholder="Gõ nội dung bạn nghe được ở đây..."></textarea>
+      <button id="checkBtn" class="primary" onclick="checkAudio()">Kiểm tra & sửa bài</button>
+      <div id="status" class="status">Sẵn sàng. Hãy chọn audio ngắn trước, khoảng 10-20 giây.</div>
     </section>
 
-    <section class="main-grid">
-      <section>
-        <section class="card">
-          <div class="typing-top">
-            <h2>Phần luyện gõ dictation</h2>
-            <div class="stats">
-              <span id="wordCount">0 từ</span> · <span id="charCount">0 ký tự</span>
-            </div>
-          </div>
-
-          <div id="saveStatus" class="save-status">Đang kiểm tra bài đã lưu...</div>
-
-          <div class="toolbar">
-            <button type="button" class="highlight-btn" onclick="highlightSelection()">Bút highlight vàng</button>
-            <button type="button" onclick="removeSelectedHighlights()">Xóa highlight đã chọn</button>
-            <button type="button" onclick="removeAllHighlights()">Xóa tất cả highlight</button>
-            <button type="button" onclick="undoEdit()">Hoàn tác</button>
-          </div>
-
-          <div id="dictationEditor" class="editor" contenteditable="true" data-placeholder="Gõ nội dung bạn nghe được vào đây..."></div>
-
-          <button id="checkBtn" type="button" class="primary-btn big-check" onclick="checkAndCorrect()">Kiểm tra & sửa bài</button>
-
-          <div class="actions">
-            <button type="button" onclick="acceptCleanAnswer()">Chấp nhận bản sửa sạch</button>
-            <button type="button" onclick="restoreOriginal()">Quay lại bài gõ ban đầu</button>
-            <button type="button" onclick="manualSave()">Lưu bài gõ</button>
-            <button type="button" onclick="downloadText()">Tải bài gõ .txt</button>
-            <button type="button" class="danger-btn" onclick="clearText()">Xóa bài gõ</button>
-          </div>
-
-          <div id="aiStatus" class="status">
-            Chèn audio, gõ bài rồi bấm “Kiểm tra & sửa bài”.
-          </div>
-
-          <details>
-            <summary>Cài đặt nâng cao</summary>
-            <div class="settings-grid">
-              <div>
-                <label class="mini-label" for="promptInput">Gợi ý cho AI</label>
-                <textarea id="promptInput" style="width:100%; min-height:80px;">Transcribe this academic English dictation audio accurately. Keep punctuation natural.</textarea>
-              </div>
-              <div>
-                <label class="mini-label" for="languageSelect">Ngôn ngữ audio</label>
-                <select id="languageSelect" style="width:100%;">
-                  <option value="">Tự nhận diện</option>
-                  <option value="en" selected>Tiếng Anh</option>
-                  <option value="vi">Tiếng Việt</option>
-                </select>
-              </div>
-            </div>
-          </details>
-        </section>
-
-        <section class="card">
-          <h2>Đáp án AI</h2>
-          <textarea id="answerText" class="answer-box" placeholder="Sau khi kiểm tra, đáp án AI sẽ hiện ở đây."></textarea>
-        </section>
-
-        <section class="card">
-          <h2>Kết quả kiểm tra</h2>
-          <div class="summary-grid">
-            <div class="summary-item">
-              <strong id="accuracyPercent">--</strong>
-              <span>Độ khớp</span>
-            </div>
-            <div class="summary-item">
-              <strong id="correctCount">0</strong>
-              <span>Từ đúng</span>
-            </div>
-            <div class="summary-item">
-              <strong id="missingCount">0</strong>
-              <span>Từ AI thêm/sửa</span>
-            </div>
-            <div class="summary-item">
-              <strong id="extraCount">0</strong>
-              <span>Từ thừa</span>
-            </div>
-          </div>
-
-          <div class="hint">
-            <span class="fix-insert">từ đỏ</span> là từ AI thêm/sửa. 
-            <span class="fix-extra">từ cam gạch</span> là từ thừa nên bỏ.
-          </div>
-        </section>
-      </section>
-
-      <aside class="card side-card">
-        <h2>Từ điển Anh - Việt</h2>
-        <div id="lookupWord" class="lookup-word">Chưa chọn từ</div>
-        <div id="meaningBox" class="meaning-box">Click vào một từ tiếng Anh trong bài gõ để mở từ điển.</div>
-
-        <div class="lookup-links">
-          <a id="cambridgeLink" href="#" target="_blank" rel="noopener">Cambridge Anh - Việt</a>
-          <a id="labanLink" href="#" target="_blank" rel="noopener">Laban Dictionary Anh - Việt</a>
-          <a id="oxfordLink" href="#" target="_blank" rel="noopener">Oxford Learner's Dictionary</a>
-          <a id="googleLink" href="#" target="_blank" rel="noopener">Google Dịch dự phòng</a>
-        </div>
-
-        <label class="toggle-row">
-          <input id="autoOpenDictionary" type="checkbox" checked />
-          <span>Tự mở Cambridge ở tab riêng khi click vào từ.</span>
-        </label>
-      </aside>
+    <section class="card">
+      <h2>Đáp án AI nghe được</h2>
+      <div id="transcript" class="result">Chưa có kết quả.</div>
     </section>
   </main>
 
   <script>
-    const NOTE_KEY = "bris_dictation_note_v1";
-    const ANSWER_KEY = "bris_dictation_answer_v1";
-    const ORIGINAL_KEY = "bris_dictation_original_v1";
-    const PROMPT_KEY = "bris_dictation_prompt_v1";
-    const LANGUAGE_KEY = "bris_dictation_language_v1";
-
     const audioInput = document.getElementById("audioInput");
     const audioPlayer = document.getElementById("audioPlayer");
     const fileName = document.getElementById("fileName");
-    const editor = document.getElementById("dictationEditor");
-    const answerText = document.getElementById("answerText");
-    const wordCount = document.getElementById("wordCount");
-    const charCount = document.getElementById("charCount");
-    const saveStatus = document.getElementById("saveStatus");
+    const statusBox = document.getElementById("status");
+    const transcriptBox = document.getElementById("transcript");
     const checkBtn = document.getElementById("checkBtn");
-    const aiStatus = document.getElementById("aiStatus");
-    const promptInput = document.getElementById("promptInput");
-    const languageSelect = document.getElementById("languageSelect");
+    const userText = document.getElementById("userText");
 
-    const accuracyPercent = document.getElementById("accuracyPercent");
-    const correctCount = document.getElementById("correctCount");
-    const missingCount = document.getElementById("missingCount");
-    const extraCount = document.getElementById("extraCount");
+    let selectedAudio = null;
 
-    const lookupWord = document.getElementById("lookupWord");
-    const meaningBox = document.getElementById("meaningBox");
-    const cambridgeLink = document.getElementById("cambridgeLink");
-    const labanLink = document.getElementById("labanLink");
-    const oxfordLink = document.getElementById("oxfordLink");
-    const googleLink = document.getElementById("googleLink");
-    const autoOpenDictionary = document.getElementById("autoOpenDictionary");
-
-    let selectedAudioFile = null;
-    let lastPausedTime = 0;
-    let saveTimer = null;
-    let latestCleanAnswer = "";
-    let latestOriginalHTML = "";
-
-    window.addEventListener("load", function () {
-      const savedNote = localStorage.getItem(NOTE_KEY);
-      const savedAnswer = localStorage.getItem(ANSWER_KEY);
-      const savedPrompt = localStorage.getItem(PROMPT_KEY);
-      const savedLanguage = localStorage.getItem(LANGUAGE_KEY);
-
-      if (savedNote) {
-        editor.innerHTML = savedNote;
-        saveStatus.textContent = "Đã khôi phục bài gõ đã lưu.";
-      } else {
-        saveStatus.textContent = "Chưa có bài gõ đã lưu.";
-      }
-
-      if (savedAnswer) {
-        answerText.value = savedAnswer;
-        latestCleanAnswer = savedAnswer;
-      }
-
-      if (savedPrompt) promptInput.value = savedPrompt;
-      if (savedLanguage !== null) languageSelect.value = savedLanguage;
-
-      updateStats();
-      updateLookupLinks("");
+    audioInput.addEventListener("change", () => {
+      selectedAudio = audioInput.files[0] || null;
+      if (!selectedAudio) return;
+      audioPlayer.src = URL.createObjectURL(selectedAudio);
+      fileName.textContent = selectedAudio.name + " - " + Math.round(selectedAudio.size / 1024) + " KB";
+      setStatus("Đã chọn audio. Bấm Kiểm tra & sửa bài.", "ok");
     });
 
-    audioInput.addEventListener("change", function () {
-      const file = this.files[0];
-      if (!file) return;
-
-      selectedAudioFile = file;
-      const audioURL = URL.createObjectURL(file);
-      audioPlayer.src = audioURL;
-      fileName.textContent = "Đang dùng: " + file.name + " (" + formatFileSize(file.size) + ")";
-      audioPlayer.playbackRate = Number(document.getElementById("speedSelect").value);
-      aiStatus.textContent = "Đã chọn audio. Sau khi gõ xong, bấm Kiểm tra & sửa bài.";
-    });
-
-    audioPlayer.addEventListener("pause", function () {
-      lastPausedTime = audioPlayer.currentTime;
-    });
-
-    editor.addEventListener("input", function () {
-      updateStats();
-      autoSaveNote();
-    });
-
-    editor.addEventListener("paste", function (event) {
-      event.preventDefault();
-      const text = (event.clipboardData || window.clipboardData).getData("text/plain");
-      document.execCommand("insertText", false, text);
-    });
-
-    answerText.addEventListener("input", function () {
-      latestCleanAnswer = answerText.value;
-      localStorage.setItem(ANSWER_KEY, answerText.value);
-    });
-
-    promptInput.addEventListener("input", saveSettings);
-    languageSelect.addEventListener("change", saveSettings);
-
-    editor.addEventListener("click", function (event) {
-      setTimeout(function () {
-        const selection = window.getSelection();
-        if (selection && selection.toString().trim().length > 0) return;
-        const word = getWordFromPoint(event.clientX, event.clientY);
-        if (word) showDictionary(word);
-      }, 80);
-    });
-
-    function saveSettings() {
-      localStorage.setItem(PROMPT_KEY, promptInput.value);
-      localStorage.setItem(LANGUAGE_KEY, languageSelect.value);
+    function setStatus(message, type) {
+      statusBox.className = "status" + (type ? " " + type : "");
+      statusBox.textContent = message;
     }
 
-    function skipAudio(seconds) {
-      audioPlayer.currentTime = Math.max(0, audioPlayer.currentTime + seconds);
-    }
-
-    function replaySentence() {
-      const start = Math.max(0, lastPausedTime - 8);
-      audioPlayer.currentTime = start;
-      audioPlayer.play();
-    }
-
-    function changeSpeed() {
-      audioPlayer.playbackRate = Number(document.getElementById("speedSelect").value);
-    }
-
-    function formatFileSize(bytes) {
-      const mb = bytes / (1024 * 1024);
-      return mb >= 1 ? mb.toFixed(2) + " MB" : Math.round(bytes / 1024) + " KB";
-    }
-
-    function getPlainText() {
-      return (editor.innerText || "").replace(/\u200B/g, "");
-    }
-
-    function updateStats() {
-      const text = getPlainText().trim();
-      const words = text ? text.split(/\s+/).length : 0;
-      wordCount.textContent = words + " từ";
-      charCount.textContent = getPlainText().length + " ký tự";
-    }
-
-    function autoSaveNote() {
-      saveStatus.textContent = "Đang tự động lưu...";
-      clearTimeout(saveTimer);
-      saveTimer = setTimeout(function () {
-        localStorage.setItem(NOTE_KEY, editor.innerHTML);
-        const now = new Date();
-        const time = now.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
-        saveStatus.textContent = "Đã tự động lưu lúc " + time + ".";
-      }, 350);
-    }
-
-    function manualSave() {
-      localStorage.setItem(NOTE_KEY, editor.innerHTML);
-      localStorage.setItem(ANSWER_KEY, answerText.value);
-      saveSettings();
-      saveStatus.textContent = "Đã lưu.";
-    }
-
-    function downloadText() {
-      const text = getPlainText();
-      const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "dictation-practice.txt";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }
-
-    function clearText() {
-      if (!confirm("Bạn có chắc muốn xóa toàn bộ phần đã gõ không?")) return;
-      editor.innerHTML = "";
-      localStorage.removeItem(NOTE_KEY);
-      updateStats();
-      saveStatus.textContent = "Đã xóa bài gõ.";
-    }
-
-    function selectionIsInsideEditor(selection) {
-      if (!selection || selection.rangeCount === 0) return false;
-      const range = selection.getRangeAt(0);
-      return editor.contains(range.commonAncestorContainer);
-    }
-
-    function highlightSelection() {
-      const selection = window.getSelection();
-      if (!selection || selection.rangeCount === 0 || !selectionIsInsideEditor(selection)) {
-        alert("Bạn hãy bôi chọn đoạn cần highlight trước.");
-        return;
-      }
-
-      const selectedText = selection.toString();
-      if (!selectedText || selectedText.trim().length === 0) {
-        alert("Bạn hãy bôi chọn đoạn cần highlight trước.");
-        return;
-      }
-
-      const range = selection.getRangeAt(0);
-      if (range.collapsed) return;
-
+    async function testBackend() {
+      setStatus("Đang test backend...", "");
       try {
-        const mark = document.createElement("mark");
-        mark.className = "hl-yellow";
-        const selectedContent = range.extractContents();
-        mark.appendChild(selectedContent);
-        range.insertNode(mark);
-
-        const afterRange = document.createRange();
-        afterRange.setStartAfter(mark);
-        afterRange.collapse(true);
-        selection.removeAllRanges();
-        selection.addRange(afterRange);
+        const response = await fetch("/api/ping", { method: "GET" });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Backend lỗi.");
+        setStatus("Backend OK: " + data.message, "ok");
       } catch (error) {
-        alert("Không highlight được đoạn này. Bạn thử chọn lại đoạn ngắn hơn.");
+        setStatus("Backend chưa kết nối được. Lỗi: " + error.message, "error");
       }
-
-      updateStats();
-      autoSaveNote();
     }
 
-    function removeSelectedHighlights() {
-      const selection = window.getSelection();
-      if (!selection || selection.rangeCount === 0 || selection.toString().trim().length === 0) {
-        alert("Bạn hãy bôi chọn đoạn đang highlight trước.");
+    async function checkAudio() {
+      if (!selectedAudio) {
+        setStatus("Bạn chưa chọn audio.", "error");
         return;
       }
 
-      const range = selection.getRangeAt(0);
-      const highlights = Array.from(editor.querySelectorAll("mark.hl-yellow"));
-      let removed = 0;
-
-      highlights.forEach(function (mark) {
-        try {
-          if (range.intersectsNode(mark)) {
-            unwrapNode(mark);
-            removed++;
-          }
-        } catch (error) {}
-      });
-
-      selection.removeAllRanges();
-      updateStats();
-      autoSaveNote();
-
-      if (removed === 0) alert("Đoạn bạn chọn không có highlight.");
-    }
-
-    function removeAllHighlights() {
-      if (!confirm("Bạn có chắc muốn xóa tất cả highlight màu vàng không?")) return;
-      Array.from(editor.querySelectorAll("mark.hl-yellow")).forEach(unwrapNode);
-      updateStats();
-      autoSaveNote();
-    }
-
-    function unwrapNode(node) {
-      const parent = node.parentNode;
-      while (node.firstChild) parent.insertBefore(node.firstChild, node);
-      parent.removeChild(node);
-      parent.normalize();
-    }
-
-    function undoEdit() {
-      editor.focus();
-      document.execCommand("undo", false, null);
-      updateStats();
-      autoSaveNote();
-    }
-
-    async function checkAndCorrect() {
-      const userText = getPlainText();
-
-      if (!userText.trim()) {
-        alert("Bạn chưa gõ bài dictation.");
-        return;
-      }
-
-      if (!selectedAudioFile) {
-        alert("Bạn cần chèn audio trước.");
-        return;
-      }
-
-      if (selectedAudioFile.size > 25 * 1024 * 1024) {
-        alert("File audio lớn hơn 25 MB. Bạn cần cắt nhỏ hoặc nén file trước khi kiểm tra.");
+      if (!userText.value.trim()) {
+        setStatus("Bạn chưa gõ bài dictation.", "error");
         return;
       }
 
       checkBtn.disabled = true;
-      latestOriginalHTML = editor.innerHTML;
-      localStorage.setItem(ORIGINAL_KEY, latestOriginalHTML);
-      aiStatus.textContent = "AI đang nghe audio, tạo đáp án và sửa trực tiếp trên bài gõ.";
+      setStatus("Đang gửi audio lên backend và gọi OpenAI...", "");
 
       try {
-        const transcript = await transcribeAudio();
-        latestCleanAnswer = transcript;
-        answerText.value = transcript;
-        localStorage.setItem(ANSWER_KEY, transcript);
+        const formData = new FormData();
+        formData.append("audio", selectedAudio);
+        formData.append("prompt", "Transcribe this dictation audio accurately.");
+        formData.append("language", "en");
 
-        const userTokens = tokenize(userText);
-        const answerTokens = tokenize(transcript);
-        const diff = buildDiff(userTokens, answerTokens);
+        const response = await fetch("/api/check", {
+          method: "POST",
+          body: formData
+        });
 
-        renderCorrectionInEditor(diff);
-        renderSummary(diff, answerTokens.length);
-        localStorage.setItem(NOTE_KEY, editor.innerHTML);
+        const raw = await response.text();
+        let data;
+        try {
+          data = JSON.parse(raw);
+        } catch {
+          throw new Error("Backend trả về không phải JSON: " + raw.slice(0, 300));
+        }
 
-        aiStatus.textContent = "Đã sửa xong. Từ đỏ là AI thêm/sửa, từ cam gạch ngang là từ thừa nên bỏ.";
+        if (!response.ok) {
+          throw new Error(data.error || "Backend/OpenAI lỗi.");
+        }
+
+        transcriptBox.textContent = data.transcript || "(AI không nghe được nội dung)";
+        setStatus("Xong. AI đã trả transcript.", "ok");
       } catch (error) {
-        aiStatus.innerHTML =
-          "<strong>Không kiểm tra được.</strong><br>" +
-          escapeHtml(error.message || String(error)) +
-          "<br><br>Kiểm tra backend đã chạy chưa và biến OPENAI_API_KEY đã được cấu hình chưa.";
+        setStatus("Không kiểm tra được. Lỗi thật: " + error.message, "error");
       } finally {
         checkBtn.disabled = false;
       }
-    }
-
-    async function transcribeAudio() {
-      const formData = new FormData();
-      formData.append("audio", selectedAudioFile);
-      formData.append("prompt", promptInput.value.trim());
-      formData.append("language", languageSelect.value.trim());
-
-      saveSettings();
-
-      const response = await fetch(window.location.origin + "/api/check", {
-        method: "POST",
-        body: formData
-      });
-
-      const responseText = await response.text();
-      let data = null;
-      try { data = JSON.parse(responseText); } catch (e) {}
-
-      if (!response.ok) {
-        throw new Error((data && data.error) ? data.error : responseText || "Không rõ lỗi.");
-      }
-
-      const transcript = data && data.transcript ? data.transcript.trim() : "";
-      if (!transcript) throw new Error("Backend không trả về transcript.");
-
-      return transcript;
-    }
-
-    function normalizeToken(token) {
-      return token
-        .toLowerCase()
-        .replace(/^[^\p{L}\p{N}'-]+|[^\p{L}\p{N}'-]+$/gu, "")
-        .trim();
-    }
-
-    function tokenize(text) {
-      return text
-        .split(/\s+/)
-        .filter(Boolean)
-        .map(function (token) {
-          return { raw: token, norm: normalizeToken(token) };
-        })
-        .filter(function (item) { return item.norm.length > 0; });
-    }
-
-    function buildDiff(userTokens, answerTokens) {
-      const n = userTokens.length;
-      const m = answerTokens.length;
-      const dp = Array.from({ length: n + 1 }, function () {
-        return Array(m + 1).fill(0);
-      });
-
-      for (let i = n - 1; i >= 0; i--) {
-        for (let j = m - 1; j >= 0; j--) {
-          if (userTokens[i].norm === answerTokens[j].norm) {
-            dp[i][j] = dp[i + 1][j + 1] + 1;
-          } else {
-            dp[i][j] = Math.max(dp[i + 1][j], dp[i][j + 1]);
-          }
-        }
-      }
-
-      let i = 0;
-      let j = 0;
-      const parts = [];
-      let correct = 0;
-      let missing = 0;
-      let extra = 0;
-
-      while (i < n && j < m) {
-        if (userTokens[i].norm === answerTokens[j].norm) {
-          parts.push({ type: "ok", text: userTokens[i].raw });
-          correct++;
-          i++;
-          j++;
-        } else if (dp[i + 1][j] >= dp[i][j + 1]) {
-          parts.push({ type: "extra", text: userTokens[i].raw });
-          extra++;
-          i++;
-        } else {
-          parts.push({ type: "insert", text: answerTokens[j].raw });
-          missing++;
-          j++;
-        }
-      }
-
-      while (i < n) {
-        parts.push({ type: "extra", text: userTokens[i].raw });
-        extra++;
-        i++;
-      }
-
-      while (j < m) {
-        parts.push({ type: "insert", text: answerTokens[j].raw });
-        missing++;
-        j++;
-      }
-
-      return { parts, correct, missing, extra };
-    }
-
-    function renderCorrectionInEditor(diff) {
-      editor.innerHTML = "";
-
-      diff.parts.forEach(function (part) {
-        const span = document.createElement("span");
-
-        if (part.type === "ok") {
-          span.className = "fix-ok";
-          span.textContent = part.text;
-        } else if (part.type === "extra") {
-          span.className = "fix-extra";
-          span.textContent = part.text;
-        } else {
-          span.className = "fix-insert";
-          span.textContent = part.text;
-        }
-
-        editor.appendChild(span);
-        editor.appendChild(document.createTextNode(" "));
-      });
-
-      updateStats();
-    }
-
-    function renderSummary(diff, answerLength) {
-      const accuracy = answerLength > 0 ? Math.round((diff.correct / answerLength) * 100) : 0;
-      accuracyPercent.textContent = accuracy + "%";
-      correctCount.textContent = diff.correct;
-      missingCount.textContent = diff.missing;
-      extraCount.textContent = diff.extra;
-    }
-
-    function acceptCleanAnswer() {
-      if (!latestCleanAnswer && !answerText.value.trim()) {
-        alert("Chưa có đáp án AI để chấp nhận.");
-        return;
-      }
-
-      const clean = latestCleanAnswer || answerText.value.trim();
-      editor.innerText = clean;
-      localStorage.setItem(NOTE_KEY, editor.innerHTML);
-      updateStats();
-      aiStatus.textContent = "Đã thay bài gõ bằng bản sửa sạch.";
-    }
-
-    function restoreOriginal() {
-      const original = latestOriginalHTML || localStorage.getItem(ORIGINAL_KEY);
-      if (!original) {
-        alert("Chưa có bản gốc để quay lại.");
-        return;
-      }
-
-      editor.innerHTML = original;
-      localStorage.setItem(NOTE_KEY, editor.innerHTML);
-      updateStats();
-      aiStatus.textContent = "Đã quay lại bài gõ ban đầu trước khi sửa.";
-    }
-
-    function getRangeFromPoint(x, y) {
-      if (document.caretRangeFromPoint) return document.caretRangeFromPoint(x, y);
-      if (document.caretPositionFromPoint) {
-        const position = document.caretPositionFromPoint(x, y);
-        if (!position) return null;
-        const range = document.createRange();
-        range.setStart(position.offsetNode, position.offset);
-        range.collapse(true);
-        return range;
-      }
-      return null;
-    }
-
-    function getWordFromPoint(x, y) {
-      const range = getRangeFromPoint(x, y);
-      if (!range || !editor.contains(range.startContainer)) return "";
-
-      let node = range.startContainer;
-      let offset = range.startOffset;
-      if (node.nodeType !== Node.TEXT_NODE) return "";
-
-      const text = node.textContent || "";
-      if (!text) return "";
-
-      if (offset >= text.length) offset = text.length - 1;
-      if (offset < 0) offset = 0;
-
-      if (!/[A-Za-z'-]/.test(text[offset]) && offset > 0 && /[A-Za-z'-]/.test(text[offset - 1])) {
-        offset = offset - 1;
-      }
-
-      if (!/[A-Za-z'-]/.test(text[offset])) return "";
-
-      let start = offset;
-      let end = offset;
-      while (start > 0 && /[A-Za-z'-]/.test(text[start - 1])) start--;
-      while (end < text.length && /[A-Za-z'-]/.test(text[end])) end++;
-      return text.slice(start, end).replace(/^[-']+|[-']+$/g, "");
-    }
-
-    function updateLookupLinks(word) {
-      const cleanWord = (word || "").trim().toLowerCase();
-      const encoded = encodeURIComponent(cleanWord);
-      cambridgeLink.href = cleanWord ? "https://dictionary.cambridge.org/vi/dictionary/english-vietnamese/" + encoded : "#";
-      labanLink.href = cleanWord ? "https://dict.laban.vn/find?type=1&query=" + encoded : "#";
-      oxfordLink.href = cleanWord ? "https://www.oxfordlearnersdictionaries.com/definition/english/" + encoded : "#";
-      googleLink.href = cleanWord ? "https://translate.google.com/?sl=en&tl=vi&text=" + encoded + "&op=translate" : "#";
-    }
-
-    function showDictionary(rawWord) {
-      const word = rawWord.trim().toLowerCase();
-      if (!word) return;
-      lookupWord.textContent = word;
-      updateLookupLinks(word);
-      meaningBox.innerHTML = "<strong>Đã chọn từ:</strong> " + escapeHtml(word) + "<br>Nguồn chính: <strong>Cambridge Anh - Việt</strong>.";
-      if (autoOpenDictionary.checked) {
-        window.open(cambridgeLink.href, "cambridge_english_vietnamese_dictionary");
-      }
-    }
-
-    function escapeHtml(text) {
-      const div = document.createElement("div");
-      div.innerText = text;
-      return div.innerHTML;
     }
   </script>
 </body>
